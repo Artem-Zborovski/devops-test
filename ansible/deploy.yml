@@ -1,0 +1,9 @@
+- name: Deploy Task Manager
+  hosts: local
+  gather_facts: false
+
+  tasks:
+    - name: Start application with Docker Compose
+      ansible.builtin.command: docker compose up -d --build
+      args:
+        chdir: "{{ playbook_dir }}/.."

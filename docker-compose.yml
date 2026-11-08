@@ -1,0 +1,49 @@
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: taskmanager-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    container_name: taskmanager-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    container_name: taskmanager-frontend
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  nginx:
+    build: ./nginx
+    container_name: taskmanager-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
